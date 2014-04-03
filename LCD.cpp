@@ -130,7 +130,7 @@ void LCD::initialize() {
 	// Clear RAM
 	this->clearScreen();
 	
-	this->sendCommands("\x21\xBF\x04\x14\x20\x08"/*{
+	this->sendCommands("\x21\xA5\x04\x14\x20\x08"/*{
 		0x21,	// Extended Commands
 		0xBF,	// Contrast (Vop)
 		0x04,	// Temperature Coefficient
