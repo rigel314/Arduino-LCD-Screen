@@ -197,7 +197,7 @@ void LCD::sendPixels(char n, char m, char *data) {
 	this->sendData(data);
 }
 void LCD::sendString(char n, char m, char *data) {
-	char *cmds = (char *)calloc(3, sizeof(char));
+	char cmds[3];
 	sprintf(cmds, "%c%c", 0x40|n, 0x80|m);
 	this->sendCommands(cmds);
 /*	this->sendCommands({
