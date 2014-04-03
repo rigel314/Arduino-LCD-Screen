@@ -186,7 +186,7 @@ void LCD::sendDatum(char datum) {
 }
 
 void LCD::sendPixels(char n, char m, char *data) {
-	char *cmds[3];
+	char cmds[3];
 	sprintf(cmds, "%c%c", 0x40|n, 0x80|m);
 	this->sendCommands(cmds);
 /*	this->sendCommands({
