@@ -20,13 +20,16 @@ public:
 	
 	void clearScreen();
 	
-	void sendCommands(char *command);
+	void sendCommands(const char *command);
 	void sendData(char *data);
 	void sendDatum(char datum);
 	
 	void sendPixels(char n, char m, char *data);
-	void sendString(char n, char m, char *data);
+	void sendString(char n, char m, const char *data, char invert = false);
 	void sendScreen(char data[84][6]);
+	
+	static const char* reverseVideoOn;
+	static const char* reverseVideoOff;
 };
 
 #endif

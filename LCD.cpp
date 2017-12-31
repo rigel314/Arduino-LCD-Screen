@@ -2,9 +2,11 @@
 
 #include <Arduino.h>
 
+const char* LCD::reverseVideoOn = "\x1b\x07";
+const char* LCD::reverseVideoOff = "\x1b\x1b";
 const char LCD::ASCII[0x60][5] =
 {
-	 {0x00, 0x00, 0x00, 0x00, 0x00} // 20  
+	 {0x00, 0x00, 0x00, 0x00, 0x00} // 20
 	,{0x00, 0x00, 0x5f, 0x00, 0x00} // 21 !
 	,{0x00, 0x07, 0x00, 0x07, 0x00} // 22 "
 	,{0x14, 0x7f, 0x14, 0x7f, 0x14} // 23 #
@@ -78,7 +80,7 @@ const char LCD::ASCII[0x60][5] =
 	,{0x0c, 0x52, 0x52, 0x52, 0x3e} // 67 g
 	,{0x7f, 0x08, 0x04, 0x04, 0x78} // 68 h
 	,{0x00, 0x44, 0x7d, 0x40, 0x00} // 69 i
-	,{0x20, 0x40, 0x44, 0x3d, 0x00} // 6a j 
+	,{0x20, 0x40, 0x44, 0x3d, 0x00} // 6a j
 	,{0x7f, 0x10, 0x28, 0x44, 0x00} // 6b k
 	,{0x00, 0x41, 0x7f, 0x40, 0x00} // 6c l
 	,{0x7c, 0x04, 0x18, 0x04, 0x78} // 6d m
@@ -164,7 +166,7 @@ void LCD::clearScreen() {
 	digitalWrite(enable_pin, HIGH);
 }
 
-void LCD::sendCommands(char *commands) {
+void LCD::sendCommands(const char *commands) {
 	digitalWrite(mode_pin, command_mode);
 	digitalWrite(enable_pin, LOW);
 	for (int i = 0; commands[i]; i++)
@@ -196,7 +198,7 @@ void LCD::sendPixels(char n, char m, char *data) {
 	});*/
 	this->sendData(data);
 }
-void LCD::sendString(char n, char m, char *data) {
+void LCD::sendString(char n, char m, const char *data, char invert) {
 	char cmds[3];
 	sprintf(cmds, "%c%c", 0x40|n, 0x80|m);
 	this->sendCommands(cmds);
@@ -209,8 +211,16 @@ void LCD::sendString(char n, char m, char *data) {
 	digitalWrite(enable_pin, 0);
 	for (int i = 0; data[i]; i++) {
 		for (int j = 0; j < 5; j++)
-			shiftOut(mosi_pin, clock_pin, MSBFIRST, ASCII[data[i]-0x20][j]);
-		shiftOut(mosi_pin, clock_pin, MSBFIRST, 0);
+			shiftOut(mosi_pin, clock_pin, MSBFIRST, ((invert) ? ~ASCII[data[i]-0x20][j] : ASCII[data[i]-0x20][j]));
+		if(data[i+1] == 0x1B && data[i+2] == 7 && !invert) {
+			invert = true;
+			i += 2;
+		}
+		shiftOut(mosi_pin, clock_pin, MSBFIRST, ((invert) ? 255 : 0));
+		if(data[i+1] == 0x1B && data[i+2] == 0x1B && invert) {
+			invert = false;
+			i += 2;
+		}
 	}
 	digitalWrite(enable_pin, 1);
 }
